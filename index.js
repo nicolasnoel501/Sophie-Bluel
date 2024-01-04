@@ -1,82 +1,78 @@
-// Obtention de l'élément de la galerie et des filtres
-const galerie = document.querySelector(".gallery");
-const filtres = document.querySelector(".filters");
-
+// Obtention des éléments de la galerie et des filtres
+const gallery = document.querySelector(".gallery");
+const filters = document.querySelector(".filters");
 // Fonction pour obtenir les travaux
-async function obtenirTravaux() {
-  const reponse = await fetch("http://localhost:5678/api/works");
-  return await reponse.json();
+async function getWorks() {
+  const response = await fetch("http://localhost:5678/api/works");
+  return await response.json();
 }
 
-// Affichage des travaux dans le DOM
-async function afficherTravaux() {
-  const tableauTravaux = await obtenirTravaux();
-  tableauTravaux.forEach(travail => {
-    creerTravail(travail);
+// L'affichage dans le DOM
+async function displayWorks() {
+  const worksArray = await getWorks();
+  worksArray.forEach(work => {
+    createWork(work);
   });
 }
 
-// Affichage des boutons de catégorie
-async function afficherBoutonsCategories() {
-  const categories = await obtenirCategories();
-  categories.forEach((categorie) => {
-    const btn = document.createElement("button")
-    btn.textContent = categorie.name.toUpperCase();
-    btn.id = categorie.id;
+// Afficher les boutons de catégorie
+async function showCategoriesButtons() {
+  const categories = await getCategories();
+  categories.forEach((category) => {
+    const btn = document.createElement("button");
+    btn.textContent = category.name.toUpperCase();
+    btn.id = category.id;
     btn.className = "filtersbutton";
-    filtres.appendChild(btn);
+    filters.appendChild(btn);
   });
 }
 
 // Affichage des boutons de catégorie lors de l'initialisation
-afficherBoutonsCategories();
-
+showCategoriesButtons();
 // Fonction pour obtenir les catégories
-async function obtenirCategories() {
-  const reponse = await fetch("http://localhost:5678/api/categories");
-  return await reponse.json();
+async function getCategories() {
+  const response = await fetch("http://localhost:5678/api/categories");
+  return await response.json();
 }
 
-// Filtrer les travaux au clic sur les catégories
-async function filtrerParCategorie() {
-    const travaux = await obtenirTravaux();
-    const boutons = document.querySelectorAll(".filters button");
-    boutons.forEach(bouton => {
-      bouton.addEventListener("click", (e) => {
-        const btnID = e.target.id;
-        galerie.innerHTML = "";
-        if (btnID !== "0") {
-          const travauxTriParCategorie = travaux.filter((travail) => {
-            return travail.categoryId == btnID;
-          });
-          travauxTriParCategorie.forEach(travail => {
-            creerTravail(travail);
-          });
-        } else {
-          // Si le bouton "Tous" est cliqué, afficher tous les travaux
-          travaux.forEach(travail => {
-            creerTravail(travail);
-          });
-        }
-      });
+// Le filtre fonctionne sur le clic de la catégorie
+async function filterByCategory() {
+  const works = await getWorks();
+  const buttons = document.querySelectorAll(".filters button");
+  buttons.forEach(button => {
+    button.addEventListener("click", (e) => {
+      const btnID = e.target.id;
+      gallery.innerHTML = "";
+      if (btnID !== "0") {
+        const worksFilteredByCategory = works.filter((work) => {
+          return work.categoryId == btnID;
+        });
+        worksFilteredByCategory.forEach(work => {
+          createWork(work);
+        });
+      } else {
+       // Si le bouton "Tous" est cliqué, afficher tous les travaux
+        works.forEach(work => {
+          createWork(work);
+        });
+      }
     });
-  }
+  });
+}
 
-// Filtrer les travaux au clic sur les catégories lors de l'initialisation
-filtrerParCategorie();
+// Le filtre fonctionne sur le clic de la catégorie lors de l'initialisation
+filterByCategory();
 
-
-// Afficher tous les travaux lors du chargement de la page
-afficherTravaux();
-
-// Fonction pour créer un élément de travail dans le DOM
-function creerTravail(travail) {
+// afficher les images au chargemement de la page
+displayWorks();
+// Fonction permettant de faire apparaître la gallerie 
+function createWork(work) {
   const figure = document.createElement("figure");
   const img = document.createElement("img");
   const figcaption = document.createElement("figcaption");
-  img.src = travail.imageUrl;
-  figcaption.textContent = travail.title;
+  img.src = work.imageUrl;
+  figcaption.textContent = work.title;
   figure.appendChild(img);
   figure.appendChild(figcaption);
-  galerie.appendChild(figure);
+  gallery.appendChild(figure);
 }
