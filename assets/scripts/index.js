@@ -54,13 +54,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const filterByCategory = async () => {
     // On obtient les travaux grâce à la fonction créée précédemment
     const works = await getWorks();
-
+    
     // On écoute le clic sur les boutons de catégorie
     const buttons = document.querySelectorAll(".filters button");
 
     // Pour chaque bouton, on filtre les travaux et on affiche les images correspondantes
     buttons.forEach(button => {
-      button.addEventListener("click", (e) => {
+      button.addEventListener("click", async (e) => {
+        const works = await getWorks();
         const btnID = e.target.id;
         gallery.innerHTML = "";
         if (btnID !== "0") {
