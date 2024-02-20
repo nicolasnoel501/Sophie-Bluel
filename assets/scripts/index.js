@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Obtention des éléments de la galerie et des filtres
   const gallery = document.querySelector(".gallery");
   const filters = document.querySelector(".filters");
-  //pour la déco
+  //pour la déconnexion
   const loginLink = document.querySelector('.logout');
 
 
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const showCategoriesButtons = async () => {
     // On obtient les catégories grâce à la fonction créée précédemment
     const categories = await getCategories();
-    
+
     // Pour chaque catégorie dans la liste, on crée un bouton dans les filtres
     categories.forEach((category) => {
       const btn = document.createElement("button");
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const filterByCategory = async () => {
     // On obtient les travaux grâce à la fonction créée précédemment
     const works = await getWorks();
-    
+
     // On écoute le clic sur les boutons de catégorie
     const buttons = document.querySelectorAll(".filters button");
 
@@ -125,6 +125,12 @@ document.addEventListener('DOMContentLoaded', function () {
   setConnectionLinkDay();
 
   // Gestion de modal d'édition
+  const toggleModal = (event) => {
+    if (event.target === editionModal) {
+      editionModal.style.display = 'none';
+      document.removeEventListener('click', toggleModal);
+    }
+  }
 
   // Main edition modal
   const editionOpenButton = document.getElementById('editionOpenButton');
@@ -146,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const addNewWorkErrorMessage = document.getElementById('newWorkErrorMessage');
 
-  const uploadSubmitButton = document.querySelector('#modalAddForm>button[type="submit"]')
+  const uploadSubmitButton = document.querySelector('#modalAddForm>button[type="submit"]');
 
   /**
    * Fonction createModalImage qui permet de créer une image dans la modal d'édition
@@ -264,25 +270,28 @@ document.addEventListener('DOMContentLoaded', function () {
     mainModal.style.display = 'flex';
     // On affiche la modal d'édition
     editionModal.style.display = 'flex';
+
+    document.addEventListener('click', toggleModal);
   }
 
   /**
-   * Fonction closeModal qui permet de fermer la modal d'édition
+  
    */
   editionOpenButton.addEventListener('click', () => openModal());
   projectModificationButton.addEventListener('click', () => openModal());
 
   /**
-   * Fonction closeModal qui permet de fermer la modal d'édition
+   
    */
   editionModalCloseButton.addEventListener('click', () => {
     if (editionModal.style.display !== 'none') {
+      document.removeEventListener('click', toggleModal);
       return editionModal.style.display = 'none';
     }
   });
 
   /**
-   * Fonction closeModal qui permet de fermer la modal d'édition
+  
    */
   addWorkButton.addEventListener('click', () => {
     // On cache la modal d'édition
@@ -318,17 +327,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /**
-   * Fonction closeModal qui permet de fermer la modal d'édition
+   
    */
   addNewWorkModalCloseButton.addEventListener('click', () => {
     // On cache la modal d'ajout si on voit qu'elle est affichée
     if (editionModal.style.display !== 'none') {
+      document.removeEventListener('click', toggleModal);
       return editionModal.style.display = 'none';
     }
   });
 
   /**
-   * Fonction closeModal qui permet de fermer la modal d'édition
+  
    */
   addNewWorkModalReturnButton.addEventListener('click', () => {
     // On cache la modal d'ajout
@@ -367,6 +377,25 @@ document.addEventListener('DOMContentLoaded', function () {
   // On récupère l'input de type file
   const imageInput = document.getElementById('modalAddImageInput');
 
+  // Fonction qui permet de vérifier le format et la taille max du fichier
+  const checkImage = (file) => {
+    // On vérifie si le fichier est bien une image
+    // Types : image/png, image/jpeg
+    if (!file.type.includes('image/png') && !file.type.includes('image/jpeg')) {
+      alert("Le fichier doit être une image au format PNG ou JPEG")
+      return false;
+    }
+
+    // On vérifie si la taille du fichier est inférieure à 4Mo
+    if (file.size > 4 * 1024 * 1024) {
+      alert("Le fichier ne doit pas dépasser 4Mo")
+      return false;
+    }
+
+    // Si tout est bon, on retourne true
+    return true;
+  }
+
   // On écoute le changement de l'input de type file
   imageInput.addEventListener('change', (event) => {
     // On récupère le fichier
@@ -374,6 +403,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Si on n'a pas de fichier, on ne fait rien
     if (!file) {
+      return;
+    }
+
+    // On vérifie le format et la taille du fichier
+    if (!checkImage(file)) {
       return;
     }
 
